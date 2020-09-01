@@ -1,11 +1,28 @@
+const {gListStr2Tree} = require('./treeUtil')
+
+/**
+ * @description Tree node structure
+ * @author Super Guo (Super_Work@hotmail.com)
+ * @create 2020-09-01 17:00:00
+ */
 class TreeNode {
-  constructor(val, children) {
-    this.val = val === void 0 ? void 0 : val
+  /**
+   * Create a Tree node
+   * @param {Object | String | Number} val
+   * @param {TreeNode[]} children
+   */
+  constructor(val, children = []) {
+    this.val = val === undefined ? undefined : val
     this.children = children ? children : []
   }
 
-  insertChild(treeNode, index) {
-    if (index === void 0) {
+  /**
+   * Insert a TreeNode to current TreeNode as a child at specified position
+   * @param {TreeNode} treeNode
+   * @param {Number} index {Insert position, default is the end of the child list}
+   */
+  insertChild(treeNode, index = undefined) {
+    if (index === undefined) {
       this.children.push(treeNode)
     } else if (index === 0) {
       this.children.unshift(treeNode)
@@ -16,138 +33,152 @@ class TreeNode {
     }
   }
 
+  /**
+   * Insert a TreeNode to current TreeNode as a child at first place of children array
+   * @param {TreeNode} treeNode
+   */
   prePendChild(treeNode) {
     this.children.unshift(treeNode)
   }
 }
 
-class BiTreeNode extends TreeNode {
-  constructor(val, left, right) {
-    super(val, [left, right].filter(item => item))
-  }
-
-  get left() {
-    return this.children[0] ? this.children[0] : null
-  }
-
-  setLeft(biTreeNode) {
-    this.children[0] = biTreeNode
-  }
-
-  get right() {
-    return this.children[1] ? this.children[1] : null
-  }
-
-  setRight(biTreeNode) {
-    this.children[1] = biTreeNode
-  }
-}
-
+/**
+ * @description Tree data structure
+ * @author Super Guo (Super_Work@hotmail.com)
+ * @create 2020-09-01 17:00:00
+ */
 class Tree {
-  constructor(str) {
-    this.root = null
-    if (str) {
-      this.root = parenStr2Tree(str)
-    }
-  }
-
-  toString() {
-    return tree2ParenStr(this.root)
-  }
-}
-
-class BiTree {
-
-}
-
-function tree2ParenStr(root) {
-  let stack = [{node: root, parent: null}],
-    preItem = {node: root, parent: null},
-    result = ''
-
-  while(stack.length > 0) {
-    let item = stack.pop(),
-      node = item.node
-
-    if (node === null) continue
-
-    if (node.val) {
-      result += node.val
-    }
-    if (node.children.length > 0) {
-      result += '('
-    }
-
-    stack.push(...Object.create(node.children).reverse().map(item => { return {node: item, parent: node} }))
-
-    if (item.parent === preItem.parent) {
-      result += ','
-    } else {
-      result += ')'
-    }
-
-    preItem = item
-  }
-
-  /*
-  if (root === null) return ''
-
-  let childStr = ''
-  result = root.val ? root.val : ''
-  for(let child of root.children) {
-    childStr += ',' + tree2ParenStr(child)
-  }
-  if (childStr !== '') {
-    result += `(${childStr.substr(1)})`
-  }
+  /**
+   * Generate tree by Generalize List type string
+   * eg. let tree = new Tree('1(2,3(6,7,8),4,5(9,10))')
+   * @param {String} gListStr {a Generalize List type str}
    */
-
-  return result
-}
-
-function parenStr2Tree(str) {
-  let stack = [new TreeNode()],
-    preBTNode = null,
-    value = ''
-  for(let i = 0; i < str.length; i ++) {
-    let c = str[i]
-    if (c === '(') {
-      if (value !== '') {
-        preBTNode = new TreeNode(value)
-        stack[stack.length - 1].children.push(preBTNode)
-        value = ''
-      }
-      stack.push(preBTNode)
-    } else if (c === ')') {
-      if (value !== '') {
-        preBTNode = new TreeNode(value)
-        stack[stack.length - 1].children.push(preBTNode)
-        value = ''
-      }
-      stack.pop()
-    } else if (c === ',') {
-      // 处理二叉树左节点为空的情况
-      if (str[i - 1] === ',' || str[i - 1] === '(') {
-        stack[stack.length - 1].children.push(null)
-      } else if (str[i - 1] !== ')') {
-        preBTNode = new TreeNode(value)
-        stack[stack.length - 1].children.push(preBTNode)
-        value = ''
-      }
-    } else {
-      value += c
+  constructor(gListStr) {
+    this.root = null
+    if (gListStr) {
+      this.root = gListStr2Tree(gListStr, TreeNode)
+      // this.root = gListStr instanceof String ? gListStr2Tree(gListStr, TreeNode) :
+      //             gListStr instanceof Array ? arr2Tree(gListStr) : null
     }
   }
 
-  return stack[0].children[0] === undefined ? null : stack[0].children[0]
+  /**
+   * Return Tree's Generalize list str
+   * @returns {string}
+   */
+  toString() {
+    let nodeStack = [{node: this.root, processed: false}],
+      strQueue = [],
+      temp = ''
+
+    while (nodeStack.length > 0) {
+      let top = nodeStack[nodeStack.length - 1]
+      if (top.node === null) {
+        temp += `,`
+        nodeStack.pop()
+      } else if (top.node.children.length > 0) {
+        if (!top.processed) {
+          if (temp !== '') {
+            strQueue.push(temp)
+            temp = ''
+          }
+          nodeStack.push(...Object.create(top.node.children).reverse().map(item => {
+            return {node: item, processed: false}
+          }))
+          top.processed = true
+        } else {
+          nodeStack.pop()
+          if (temp === '') {
+            while (strQueue.length > 0) {
+              temp += strQueue.shift()
+            }
+            strQueue.push(`,${top.node.val}(${temp.substr(1)})`)
+            temp = ''
+          } else {
+            strQueue.push(`,${top.node.val}(${temp.substr(1)})`)
+          }
+          temp = ''
+        }
+      } else {
+        nodeStack.pop()
+        temp += `,${top.node.val}`
+      }
+    }
+
+    return strQueue.shift().substr(1)
+  }
+
+  /**
+   * Return a TreeNode Array of Depth First traversal
+   * @returns {[TreeNode]}
+   */
+  depthFirstArray() {
+    let stack = [this.root],
+      result = []
+
+    while(stack.length > 0) {
+      let node = stack.pop()
+      // result.push(node ? node.val : null)
+      result.push(node)
+      if (node !== null && node.children.length > 0) {
+        stack.push(...Object.create(node.children).reverse().filter(item => item !== null && item.val !== null))
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * Return a TreeNode Array of Breadth First traversal
+   * @returns {[TreeNode]}
+   */
+  breadthFirstArray() {
+    let queue = [this.root],
+      result = []
+
+    while(queue.length > 0) {
+      let node = queue.shift()
+      // result.push(node ? node.val : null)
+      result.push(node)
+      if (node !== null && node.children.length > 0) {
+        queue.push(...node.children)
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * Return a TreeNode Array of Preorder traversal
+   * @returns {TreeNode[]}
+   */
+  preOrder() {
+    return this.depthFirstArray()
+  }
+
+  /**
+   * Return a TreeNode Array of Postorder traversal
+   * @returns {[]}
+   */
+  postOrder() {
+    let stack = [{node: this.root, visited: false}],
+      result = []
+
+    while(stack.length > 0) {
+      let item = stack.pop()
+      if (item.visited || item.node.children.length === 0) {
+        result.push(item.node)
+      } else if (item.node.children.length > 0) {
+        stack.push({node: item.node, visited: true})
+        stack.push(...Object.create(item.node.children).reverse().filter(item => item !== null && item.val !== null).map(item => {return {node: item, visited: false}}))
+      }
+    }
+
+    return result
+  }
 }
 
-let treeStr = '1(2,3(6,7,8),4,5(9,10))'
-let biTreeStr = 'A(B(D(,GOD)),C(E,F))'
-let root = parenStr2Tree(treeStr)
-let biRoot = parenStr2Tree(biTreeStr)
-console.log(tree2ParenStr(root))
-console.log(treeStr)
-console.log(tree2ParenStr(biRoot))
-console.log(biTreeStr)
-// debugger
+module.exports = {
+  TreeNode,
+  Tree
+}

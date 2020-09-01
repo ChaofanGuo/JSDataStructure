@@ -1,5 +1,6 @@
-let str = 'argument'
+let a = null
 
-for(let s of str) {
-  console.log(s)
-}
+let {b} = a === null || a === undefined ? {} : a
+
+console.log(b)
+// debugger
