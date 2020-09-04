@@ -1,0 +1,23 @@
+{
+  "name": "super-js-structures",
+  "version": "0.0.1",
+  "description": "a js based data structure",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChaofanGuo/JSDataStructure.git"
+  },
+  "keywords": [
+    "JS",
+    "DataStructure"
+  ],
+  "author": "郭超凡 (Super_Work@hotmail.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ChaofanGuo/JSDataStructure/issues"
+  },
+  "homepage": "https://github.com/ChaofanGuo/JSDataStructure#readme"
+}

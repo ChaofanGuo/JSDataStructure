@@ -14,9 +14,9 @@ class BinaryTreeNode extends TreeNode {
    * @param {BinaryTreeNode} left Left child
    * @param {BinaryTreeNode} right Right child
    */
-  constructor(val, left, right) {
+  constructor(val = undefined, left= null, right = null) {
     let children = []
-    left ? children.push(left) : children.push(null)
+    left ? children.push(left) : right ? children.push(null) : void 0
     right ? children.push(right) : void 0
     super(val, children)
   }
@@ -60,6 +60,11 @@ class BinaryTreeNode extends TreeNode {
  * @create 2020-09-01 17:00:00
  */
 class BinaryTree extends Tree{
+  /**
+   * Generate binary tree by Generalize List type string
+   * eg. let tree = new BinaryTree('1(2(4(,7)),3(5,6)')
+   * @param {String} gListStr {a Generalize List type str}
+   */
   constructor(gListStr) {
     super(undefined)
     if (gListStr) {
