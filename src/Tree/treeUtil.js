@@ -110,7 +110,7 @@ function leetCodeArr2Tree(arr) {
  * @param {Array} arr LeetCode array tree data
  * @returns {BinaryTree}
  */
-function leetCode2BinaryTree(arr) {
+function leetCodeArray2BinaryTree(arr) {
   let refined = [],
     temp = []
   for(let i = 0; i < arr.length; i ++) {
@@ -147,7 +147,7 @@ function refinedArr2Tree(arr, nodeClass, treeClass) {
       let first = queue[0],
         temp = val.map(item => item === null ? null : new nodeClass(item))
       first.insertChild(-1, ...temp)
-      queue.push(...temp)
+      queue.push(...temp.filter(item => item))
     }
   }
 
@@ -161,5 +161,5 @@ module.exports = {
   gListStr2Tree,
   tree2GListStr,
   leetCodeArr2Tree,
-  leetCode2BinaryTree
+  leetCodeArray2BinaryTree
 }

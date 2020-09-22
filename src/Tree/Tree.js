@@ -30,6 +30,14 @@ class TreeNode {
       this.children.push(...treeNode, ...end)
     }
   }
+
+  /**
+   * Return Tree's Generalize list str
+   * @returns {string}
+   */
+  toString() {
+    return tree2GListStr(this)
+  }
 }
 
 /**
